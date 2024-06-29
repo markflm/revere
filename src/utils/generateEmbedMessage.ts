@@ -1,3 +1,5 @@
+import { EmbedBuilder } from "discord.js";
+
 //build match links possibly
 const exampleEmbed = new EmbedBuilder()
 	.setColor(0x0099FF)

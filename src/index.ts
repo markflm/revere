@@ -4,6 +4,9 @@ import createDiscordClient from "./services/createClient";
 import Fastify from 'fastify'
 import { dmUserBasic } from './services/dmUser';
 import { UserAlert } from './types/UserAlert';
+import {ButtonStyle, Events as DiscordEvents, TextChannel } from 'discord.js';
+import { Button } from './types/Button';
+import generateButtonRow from './utils/generateButtonRow';
 
 if (!process.env.FASTIFY_PORT) {
     throw new Error("Port can't be found")
@@ -13,6 +16,20 @@ const fastify = Fastify({
   logger: true
 })
  const client = await createDiscordClient()
+
+client.on(DiscordEvents.MessageCreate, async (message) => {
+//ignore messages that are from other bots or are posted in channels. Only responding to DMs for now
+if (message.author.bot || message.guildId != null) return;
+
+//look up user to determine if we have them in user db already. this will determine what type of reply to send
+// const actionRows = [];
+// for (let i = 0; i < buttons.length; i = i +5){
+//     if (!buttons[i]) break;
+//     actionRows.push(generateButtonRow(buttons.slice(i, i+4)))
+// }
+// const actionRow = generateButtonRow(buttons)
+message.author.send({content: "Reply", components: actionRows})
+})
 
 fastify.get('/test', async (request, reply) => {
     reply.send({ hello: 'world' })

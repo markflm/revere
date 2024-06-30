@@ -1,5 +1,3 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
 import { Client, EmbedBuilder, GatewayIntentBits, TextChannel } from "discord.js";
 
 export default async function createDiscordClient(): Promise<Client>{

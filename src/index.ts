@@ -15,6 +15,19 @@ if (!process.env.FASTIFY_PORT) {
 const fastify = Fastify({
   logger: true
 })
+fastify.addHook('preHandler', (request, reply, done) => {
+    const validationHeader = request.headers["revere-api-key"] || request.headers["Revere-Api-Key"];
+    if (process.env.FASTIFY_ACCESS_KEY === validationHeader)
+        {
+            done()
+        }
+    reply
+    .code(400)
+    .header('Content-Type', 'application/json; charset=utf-8')
+    .send({ errorMsg: "Cannot interact with API endpoint without a valid key. foh!"})
+
+   fastify.log.warn({event: request}, "Tried to access API without valid key")
+  })
  const client = await createDiscordClient()
 
 client.on(DiscordEvents.MessageCreate, async (message) => {
@@ -28,7 +41,7 @@ if (message.author.bot || message.guildId != null) return;
 //     actionRows.push(generateButtonRow(buttons.slice(i, i+4)))
 // }
 // const actionRow = generateButtonRow(buttons)
-message.author.send({content: "Reply", components: actionRows})
+message.author.send({content: "Reply" /*, components: actionRows*/})
 })
 
 fastify.get('/test', async (request, reply) => {

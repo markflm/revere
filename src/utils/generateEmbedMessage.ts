@@ -1,7 +1,33 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, EmbedData } from "discord.js";
+import { Games, ValorantDefaults } from "../constants";
 
+
+
+
+ export function createEmbedMessage(data: EmbedData, game?: number) {
+	if (game) setEmbedDefaultsByGame(data, game);
+	const embed = new EmbedBuilder()
+	.setColor(data.color || 0x0099FF )
+	if (data.title) embed.setTitle(data.title)
+	if (data.url) embed.setURL(data.url)
+	if (data.author) embed.setAuthor(data.author)
+	if (data.description) embed.setDescription(data.description);
+	if (data.thumbnail) embed.setThumbnail(data.thumbnail.url)
+	// if (data.fields) embed.addFields(data.fields)
+	if (data.image) embed.setImage(data.image.url)
+	if (data.footer) embed.setFooter(data.footer)
+
+	return embed;
+ }
+
+ function setEmbedDefaultsByGame(data: EmbedData, game: number) {
+if (game == Games.valorant){
+data.author = ValorantDefaults.messageAuthor;
+data.thumbnail = ValorantDefaults.messageThumbnail
+}
+ }
 //build match links possibly
-const exampleEmbed = new EmbedBuilder()
+export const exampleEmbed = new EmbedBuilder()
 	.setColor(0x0099FF)
 	.setTitle('A Stupid Fucking Jett Is Going Awp Some Guy')
 	.setURL('https://discord.js.org/')

@@ -8,7 +8,8 @@ import { ButtonBuilder, ButtonStyle, Events as DiscordEvents, TextChannel } from
 import { Button } from './types/Button';
 import generateButtonRow from './utils/generateButtonRow';
 import { SubOneTeamRegex, UnsubOneTeamRegex } from './constants';
-
+import { subToTeam, unsubFromTeam } from './services/dbClient';
+console.log("index")
 if (!process.env.FASTIFY_PORT) {
   throw new Error("Port can't be found")
 }
@@ -50,18 +51,20 @@ client.on(DiscordEvents.MessageCreate, async (message) => {
 client.on(DiscordEvents.InteractionCreate, async interaction => {
 
   if (!interaction.isButton()) return;
-
-  if (interaction.customId == `unsub_${interaction.user.id}_all`) {
+  const userId = interaction.user.id
+  const teamId = interaction.customId?.split("_")[2]
+  if (interaction.customId == `unsub_${userId}_all`) {
     //user requesting to unsub from all teams. ask if they're sure
   }
   if (UnsubOneTeamRegex.test(interaction.customId)) {
     //user wants to unsub from 1 team. do this, then send success message with option to resub.
-    interaction.reply({ content: "Unsubscribed from team", components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${interaction.user.id}_team`, style: ButtonStyle.Primary }])] })
+    const deleteSuccessful = await unsubFromTeam(userId, teamId);
+    if (deleteSuccessful) interaction.reply({ content: "Unsubscribed from {team}", components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${userId}_team`, style: ButtonStyle.Primary }])] })
+    else interaction.reply({ content: "Unsubscribe attempt seems to have failed. Try the {command} to confirm you were successfully unsubscribed." })
   }
   if (SubOneTeamRegex.test(interaction.customId)) {
-    const teamId = interaction.customId.split("_")[2]
-    //subtoteam(userId, teamId)
-    interaction.reply({content: "Successfully subscribed to team"})
+    const subSuccessful = await subToTeam(userId, teamId)
+    if (subSuccessful) interaction.reply({ content: "Successfully subscribed to {team}" })
   }
 
 

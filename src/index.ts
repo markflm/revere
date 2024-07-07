@@ -40,20 +40,15 @@ client.on(DiscordEvents.MessageCreate, async (message) => {
   if (message.author.bot || message.guildId != null) return;
 
   //look up user to determine if we have them in user db already. this will determine what type of reply to send
-  // const actionRows = [];
-  // for (let i = 0; i < buttons.length; i = i +5){
-  //     if (!buttons[i]) break;
-  //     actionRows.push(generateButtonRow(buttons.slice(i, i+4)))
-  // }
-  // const actionRow = generateButtonRow(buttons)
   message.author.send({ content: "Reply" /*, components: actionRows*/ })
 })
 
 client.on(DiscordEvents.InteractionCreate, async interaction => {
-  console.log(interaction)
   if (interaction.isChatInputCommand()) {
-    if (interaction.commandName.split("_")[0] === 'revere') {
-      await handleSlashCommand(interaction)
+    if (interaction.commandName.split("-")[0] === 'revere') {
+      //handleSlashCommand will take of replying to interaction after this point
+      await handleSlashCommand(interaction);
+      return;
     }
   }
   if (!interaction.isButton()) return;

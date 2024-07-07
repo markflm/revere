@@ -16,3 +16,10 @@ make sure Docker is running, then run `npx supabase init` and `npx supabase star
 
 after supabase is running, migrations/seeding data can be run with `npx supabase db reset`
 more info: https://supabase.com/docs/guides/cli/local-development
+
+
+# deploying
+for now:
+run npm run build
+zip
+scp to vps

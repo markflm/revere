@@ -4,10 +4,10 @@ import { Games, ValorantDefaults } from "../constants";
 
 
 
- export function createEmbedMessage(data: EmbedData, game?: number) {
+export function createEmbedMessage(data: EmbedData, game?: number) {
 	if (game) setEmbedDefaultsByGame(data, game);
 	const embed = new EmbedBuilder()
-	.setColor(data.color || 0x0099FF )
+		.setColor(data.color || 0x0099FF)
 	if (data.title) embed.setTitle(data.title)
 	if (data.url) embed.setURL(data.url)
 	if (data.author) embed.setAuthor(data.author)
@@ -18,14 +18,14 @@ import { Games, ValorantDefaults } from "../constants";
 	if (data.footer) embed.setFooter(data.footer)
 
 	return embed;
- }
-
- function setEmbedDefaultsByGame(data: EmbedData, game: number) {
-if (game == Games.valorant){
-data.author = ValorantDefaults.messageAuthor;
-data.thumbnail = ValorantDefaults.messageThumbnail
 }
- }
+
+function setEmbedDefaultsByGame(data: EmbedData, game: number) {
+	if (game == Games.valorant) {
+		data.author = ValorantDefaults.messageAuthor;
+		data.thumbnail = ValorantDefaults.messageThumbnail
+	}
+}
 //build match links possibly
 export const exampleEmbed = new EmbedBuilder()
 	.setColor(0x0099FF)

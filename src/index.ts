@@ -9,7 +9,7 @@ import { Button } from './types/Button';
 import generateButtonRow from './utils/generateButtonRow';
 import { SubOneTeamRegex, UnsubOneTeamRegex } from './constants';
 import { subToTeam, unsubFromTeam } from './services/dbClient';
-console.log("index")
+
 if (!process.env.FASTIFY_PORT) {
   throw new Error("Port can't be found")
 }
@@ -59,12 +59,12 @@ client.on(DiscordEvents.InteractionCreate, async interaction => {
   if (UnsubOneTeamRegex.test(interaction.customId)) {
     //user wants to unsub from 1 team. do this, then send success message with option to resub.
     const deleteSuccessful = await unsubFromTeam(userId, teamId);
-    if (deleteSuccessful) interaction.reply({ content: "Unsubscribed from {team}", components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${userId}_team`, style: ButtonStyle.Primary }])] })
-    else interaction.reply({ content: "Unsubscribe attempt seems to have failed. Try the {command} to confirm you were successfully unsubscribed." })
+    if (deleteSuccessful) interaction.reply({ content: "Unsubscribed from {team}", components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${userId}_${teamId}`, style: ButtonStyle.Primary }])], ephemeral: true})
+    else interaction.reply({ content: "Unsubscribe attempt seems to have failed. You're likely already unsubscribed from this team.", ephemeral: true })
   }
   if (SubOneTeamRegex.test(interaction.customId)) {
     const subSuccessful = await subToTeam(userId, teamId)
-    if (subSuccessful) interaction.reply({ content: "Successfully subscribed to {team}" })
+    if (subSuccessful) interaction.reply({ content: `Successfully subscribed to ${subSuccessful}`, ephemeral: true })
   }
 
 

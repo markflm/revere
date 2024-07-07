@@ -20,32 +20,35 @@ $$;
 
 
 create or replace function sub_user_to_team(p_discord_id bigint, p_team_id bigint)
-   returns bit
+   returns text
    language plpgsql
   as
 $$
 declare
 -- need to come up with numbers for error states.
 -- e.g. 0 = team doesn't exist, 1 = user doesn't exist, 2 = team exists but you're not subscribed
-  is_real_team bit;
-  already_subbed bit;
+  is_real_team boolean;
+  already_subbed boolean;
   userid bigint;
+  subbed_to_team text;
 begin
 
 --confirm this is a real team_id
-select into is_real_team CASE WHEN EXISTS (SELECT 1 FROM teams WHERE id = p_team_id) THEN 1 ELSE 0 END;
-if is_real_team <>  1 then
+select into is_real_team CASE WHEN EXISTS (SELECT true FROM teams WHERE id = p_team_id) THEN true ELSE false END;
+if is_real_team <> true then
   RAISE '3';
 end if;
 
-select into already_subbed case when count(*) > 0 then 1 else 0 end from subscriptions s join users u on s.user_id = p.id where s.team_id = p_team_id and u.discord_id = p.discord_id;
+select into already_subbed case when count(*) > 0 then true else false end from subscriptions s join users u on s.user_id = u.id where s.team_id = p_team_id and u.discord_id = p_discord_id;
 
-if already_subbed = 1 then
+if already_subbed = true then
   RAISE '2';
 else
-  select into userid from users where discord_id = p_discord_id;
+  select id into userid from users where discord_id = p_discord_id;
   insert into subscriptions (user_id, team_id) values (userid, p_team_id);
-  return 1;
+
+  select CONCAT(t.name, ' (', g.name, ')') into subbed_to_team from teams t join games g on t.game_id = g.id where t.team_id = p_team_id;
+  return subbed_to_team;
 end if;
 
 end;

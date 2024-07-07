@@ -1,4 +1,4 @@
-import { ButtonStyle, Client, EmbedBuilder, EmbedData } from "discord.js";
+import { ActionRowBuilder, ButtonStyle, Client, EmbedBuilder, EmbedData } from "discord.js";
 import { createEmbedMessage, exampleEmbed } from "../utils/generateEmbedMessage";
 import { UserAlert } from "../types/UserAlert";
 import { Button } from "../types/Button";
@@ -15,8 +15,6 @@ export async function dmUserEmbed(client: Client, userAlert: UserAlert){
 const user = await client.users.fetch(userAlert.userId)
 // do we want to send multiple embeds at once?
 const match = userAlert.matches[0]
-console.log("MATCH")
-console.log(match) 
 const embedData: EmbedData = {};
 embedData.title = `${match.subbedTeam}'s match is about to begin!`
 embedData.description = `A match featuring ${match.subbedTeam} is scheduled to start in ${match.timeToStart} according to ${match.provider}.`

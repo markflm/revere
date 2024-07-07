@@ -4,11 +4,12 @@ import createDiscordClient from "./services/createClient";
 import Fastify from 'fastify'
 import { dmUserBasic, dmUserEmbed } from './services/dmUser';
 import { UserAlert } from './types/UserAlert';
-import { ButtonBuilder, ButtonStyle, Events as DiscordEvents, TextChannel } from 'discord.js';
+import { ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Events as DiscordEvents, TextChannel } from 'discord.js';
 import { Button } from './types/Button';
 import generateButtonRow from './utils/generateButtonRow';
 import { SubOneTeamRegex, UnsubOneTeamRegex } from './constants';
 import { subToTeam, unsubFromTeam } from './services/dbClient';
+import { handleSlashCommand } from './commands/handlers';
 
 if (!process.env.FASTIFY_PORT) {
   throw new Error("Port can't be found")
@@ -49,7 +50,12 @@ client.on(DiscordEvents.MessageCreate, async (message) => {
 })
 
 client.on(DiscordEvents.InteractionCreate, async interaction => {
-
+  console.log(interaction)
+  if (interaction.isChatInputCommand()) {
+    if (interaction.commandName.split("_")[0] === 'revere') {
+      await handleSlashCommand(interaction)
+    }
+  }
   if (!interaction.isButton()) return;
   const userId = interaction.user.id
   const teamId = interaction.customId?.split("_")[2]
@@ -59,7 +65,7 @@ client.on(DiscordEvents.InteractionCreate, async interaction => {
   if (UnsubOneTeamRegex.test(interaction.customId)) {
     //user wants to unsub from 1 team. do this, then send success message with option to resub.
     const deleteSuccessful = await unsubFromTeam(userId, teamId);
-    if (deleteSuccessful) interaction.reply({ content: "Unsubscribed from {team}", components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${userId}_${teamId}`, style: ButtonStyle.Primary }])], ephemeral: true})
+    if (deleteSuccessful) interaction.reply({ content: "Unsubscribed from {team}", components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${userId}_${teamId}`, style: ButtonStyle.Primary }])], ephemeral: true })
     else interaction.reply({ content: "Unsubscribe attempt seems to have failed. You're likely already unsubscribed from this team.", ephemeral: true })
   }
   if (SubOneTeamRegex.test(interaction.customId)) {

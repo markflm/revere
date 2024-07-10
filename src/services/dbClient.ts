@@ -32,3 +32,19 @@ export async function getTeamsForUser(userId): Promise<string[]> {
     const stringifiedTeams = data[0].subscriptions.map((x) => `${x.teams.name} (${x.teams.games.name})`)
     return stringifiedTeams;
 }
+
+export async function lookupTeam(teamName: string): Promise<any[]> {
+const splitString = teamName.split(" ")
+let dbCommand = dbClient.from("teams").select("name, games(name)");
+
+const orString = splitString.map((x, index) => `name.ilike.%${x}%`).join(",")
+console.log("OR STRING " + orString)
+dbCommand.or(orString);
+
+const {data, error} = await dbCommand.limit(5);
+console.log("DATA")
+console.log(data)
+
+return data;
+
+}

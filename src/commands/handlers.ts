@@ -1,10 +1,11 @@
 import { ChatInputCommandInteraction, blockQuote } from "discord.js";
 import { SlashCommandNames } from "./constants";
-import { getTeamsForUser } from "../services/dbClient";
+import { getTeamsForUser, lookupTeam } from "../services/dbClient";
 
 export async function handleSlashCommand(interaction: ChatInputCommandInteraction){
-    console.log("interaction from slash command handler")
-    console.log(interaction)
+    // console.log("interaction from slash command handler")
+    // console.log(interaction)
+    // console.log(interaction.options)
     switch (interaction.commandName){
         case(SlashCommandNames.getMyTeams):
             const teams = await getTeamsForUser(interaction.user.id)
@@ -15,6 +16,15 @@ export async function handleSlashCommand(interaction: ChatInputCommandInteractio
             interaction.reply({content: `You are currently subscribed to:\n ${blockQuote(teamList)}`, ephemeral: true})
             break;
         case(SlashCommandNames.subToTeam):
+        if (!interaction.options.data[0]?.value || typeof interaction.options.data[0].value != "string"){
+            console.log(typeof interaction.options.data[0].value != "string")
+            console.error("argument bad")
+            throw new Error()
+        }
+        const team: string = interaction.options.data[0].value
+        console.log("LOOKUP TEAM")
+        console.log(team)
+        await lookupTeam(team)
             break;
         case(SlashCommandNames.unsubFromTeam):
             break;

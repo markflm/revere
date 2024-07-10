@@ -47,7 +47,7 @@ else
   select id into userid from users where discord_id = p_discord_id;
   insert into subscriptions (user_id, team_id) values (userid, p_team_id);
 
-  select CONCAT(t.name, ' (', g.name, ')') into subbed_to_team from teams t join games g on t.game_id = g.id where t.team_id = p_team_id;
+  select CONCAT(t.name, ' (', g.name, ')') into subbed_to_team from teams t join games g on t.game_id = g.id where t.id = p_team_id;
   return subbed_to_team;
 end if;
 

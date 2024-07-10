@@ -1,8 +1,15 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { SupabaseClient, createClient } from "@supabase/supabase-js";
+import { Button } from '../types/Button';
+import { ButtonStyle } from 'discord.js';
 const dbClient = createClient(process.env.SUPABASE_API_URL, process.env.SUPABASE_ANON_KEY);
 
+export async function getUserIdByDiscordId(discordId){
+    const { data, error } = await dbClient.from("users").select("id").eq("discord_id", discordId.toString())
+    //handle error, etc
+    return data[0].id;
+}
 
 export async function unsubFromTeam(userId, teamId) {
     const { data, error } = await dbClient.rpc('unsub_user_from_team', { p_discord_id: userId, p_team_id: teamId })
@@ -33,18 +40,15 @@ export async function getTeamsForUser(userId): Promise<string[]> {
     return stringifiedTeams;
 }
 
-export async function lookupTeam(teamName: string): Promise<any[]> {
-const splitString = teamName.split(" ")
-let dbCommand = dbClient.from("teams").select("name, games(name)");
+export async function fuzzyLookupTeam(teamName: string): Promise<Button[]> {
+
+const splitString = teamName.trim().split(" ")
+
+let dbCommand = dbClient.from("teams").select("name, id, games(name)");
 
 const orString = splitString.map((x, index) => `name.ilike.%${x}%`).join(",")
-console.log("OR STRING " + orString)
-dbCommand.or(orString);
 
-const {data, error} = await dbCommand.limit(5);
-console.log("DATA")
-console.log(data)
+const {data, error} = await dbCommand.or(orString).limit(5);
 
-return data;
-
+return data.map((x) => ({id: `sub_REPLACE_${x.id}`, label:`${x.name} (${x.games.name})`, style: ButtonStyle.Primary}))
 }

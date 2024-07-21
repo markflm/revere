@@ -46,7 +46,7 @@ client.on(DiscordEvents.MessageCreate, async (message) => {
 client.on(DiscordEvents.InteractionCreate, async interaction => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName.split("-")[0] === 'revere') {
-      //handleSlashCommand will take of replying to interaction after this point
+      //handleSlashCommand will take care of replying to interaction after this point
       await handleSlashCommand(interaction);
       return;
     }
@@ -54,9 +54,9 @@ client.on(DiscordEvents.InteractionCreate, async interaction => {
   if (!interaction.isButton()) return;
   const userId = interaction.user.id
   const teamId = interaction.customId?.split("_")[2]
-  if (interaction.customId == `unsub_${userId}_all`) {
-    //user requesting to unsub from all teams. ask if they're sure
-  }
+  // if (interaction.customId == `unsub_${userId}_all`) {
+  //   //user requesting to unsub from all teams. ask if they're sure
+  // }
   if (UnsubOneTeamRegex.test(interaction.customId)) {
     //user wants to unsub from 1 team. do this, then send success message with option to resub.
     const deleteSuccessful = await unsubFromTeam(userId, teamId);

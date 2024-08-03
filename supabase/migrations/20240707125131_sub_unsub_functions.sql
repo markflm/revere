@@ -1,18 +1,20 @@
 create or replace function unsub_user_from_team(p_discord_id bigint, p_team_id bigint)
-   returns bit
+   returns text
    language plpgsql
   as
 $$
 declare
   del_count integer;
+  unsubbed_from_team text;
 begin
 
 WITH deleted AS (delete from subscriptions s using users u where s.user_id = u.id and u.discord_id = p_discord_id and s.team_id = p_team_id RETURNING *) SELECT into del_count count(*) FROM deleted;
 
 if del_count = 1 then
-  return 1;
+   select CONCAT(t.name, ' (', g.name, ')') into unsubbed_from_team from teams t join games g on t.game_id = g.id where t.id = p_team_id;
+   return unsubbed_from_team;
 else
-  return 0;
+  RAISE 'Delete Failed';
 end if;
 
 end;

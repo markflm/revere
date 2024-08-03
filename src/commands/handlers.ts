@@ -24,12 +24,10 @@ export async function handleSlashCommand(interaction: ChatInputCommandInteractio
             const team: string = interaction.options.data[0].value
             const teamOptions = await fuzzyLookupTeam(team, true, interaction.user.id)
             if (!teamOptions.length) {
-                interaction.reply({ content: `Revere could not find any team names similar to "${team}". Visit our website to view all available teams.`, ephemeral: true })
+                interaction.reply({ content: `Revere could not find any teams you are not currently subscribed to with names similar to "**${team}**". Visit our website to view all available teams.`, ephemeral: true })
                 return;
             }
-            const userId = await getUserIdByDiscordId(interaction.user.id)
-            teamOptions.map((x) => x.label.replace("REPLACE", userId))
-            interaction.reply({ content: `Revere found at least ${teamOptions.length} teams when looking up "${team}". Click to subscribe`, components: [generateButtonRow(teamOptions)], ephemeral: true })
+            interaction.reply({ content: `Revere found at least ${teamOptions.length} teams you are not currently subscribed to when looking up "**${team}**". Click to subscribe`, components: [generateButtonRow(teamOptions)], ephemeral: true })
             break;
         }
         case (SlashCommandNames.unsubFromTeam): {
@@ -39,11 +37,10 @@ export async function handleSlashCommand(interaction: ChatInputCommandInteractio
             const team: string = interaction.options.data[0].value
             const teamOptions = await fuzzyLookupTeam(team, false, interaction.user.id)
             if (!teamOptions.length) {
-                interaction.reply({ content: `Revere could not find any teams you are subscribed to with names similar to "${team}". Try the \`/revere-get-my-teams\` command to see all of your subscribed teams.`, ephemeral: true })
+                interaction.reply({ content: `Revere could not find any teams you are subscribed to with names similar to "**${team}**". Try the \`/revere-get-my-teams\` command to see all of your subscribed teams.`, ephemeral: true })
                 return;
             }
-            const userId = await getUserIdByDiscordId(interaction.user.id)
-            interaction.reply({ content: `Revere found at least ${teamOptions.length} teams you're currently subscribed to when looking up "${team}". Click to unsubscribe`, components: [generateButtonRow(teamOptions)], ephemeral: true })
+            interaction.reply({ content: `Revere found at least ${teamOptions.length} team(s) you're currently subscribed to when looking up "${team}". Click to unsubscribe`, components: [generateButtonRow(teamOptions)], ephemeral: true })
             break;
         }
     }

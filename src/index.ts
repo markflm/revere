@@ -59,13 +59,13 @@ client.on(DiscordEvents.InteractionCreate, async interaction => {
   // }
   if (UnsubOneTeamRegex.test(interaction.customId)) {
     //user wants to unsub from 1 team. do this, then send success message with option to resub.
-    const deleteSuccessful = await unsubFromTeam(userId, teamId);
-    if (deleteSuccessful) interaction.reply({ content: "Unsubscribed from {team}", components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${userId}_${teamId}`, style: ButtonStyle.Primary }])], ephemeral: true })
+    const unsubscribedTeam = await unsubFromTeam(userId, teamId);
+    if (unsubscribedTeam) interaction.reply({ content: `Unsubscribed from **${unsubscribedTeam}**`, components: [generateButtonRow([{ label: "Resubscribe to team", id: `sub_${userId}_${teamId}`, style: ButtonStyle.Primary }])], ephemeral: true })
     else interaction.reply({ content: "Unsubscribe attempt seems to have failed. You're likely already unsubscribed from this team.", ephemeral: true })
   }
   if (SubOneTeamRegex.test(interaction.customId)) {
     const subSuccessful = await subToTeam(userId, teamId)
-    if (subSuccessful) interaction.reply({ content: `Successfully subscribed to ${subSuccessful}`, ephemeral: true })
+    if (subSuccessful) interaction.reply({ content: `Successfully subscribed to **${subSuccessful}**`, ephemeral: true })
   }
 
 

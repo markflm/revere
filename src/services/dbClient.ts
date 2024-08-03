@@ -15,8 +15,9 @@ export async function unsubFromTeam(userId, teamId) {
     const { data, error } = await dbClient.rpc('unsub_user_from_team', { p_discord_id: userId, p_team_id: teamId })
     if (error) {
         console.error(error)
+        throw new Error("failed to unsub from team")
     }
-    return data > 0;
+    return data;
 }
 
 export async function subToTeam(userId, teamId) {
@@ -49,9 +50,11 @@ let teamNames = splitString.map((x, index) => `%${x}%`)
 //todo - maybe filter out any 'teamNames' under 2 or 3 characters
 
 let rpcParams = {
-    p_team_name: teamNames
+    p_team_name: teamNames,
+    is_sub_lookup: isSub,
+    p_discord_id: userId
 }
-if (!isSub) rpcParams["p_discord_id"] = userId;
+
 
 const { data, error } = await dbClient.rpc('return_teams_for_user_by_team_name', rpcParams)
 

@@ -41,18 +41,20 @@ export async function getTeamsForUser(userId): Promise<string[]> {
 }
 
 
-export async function fuzzyLookupTeam(teamName: string, isSub: boolean, userId?: string): Promise<Button[]> {
-    //TODO - make this an RPC. can return only teams that a user is subbed to if userId is passed, otherwise returns all fuzzy matches
+export async function fuzzyLookupTeam(teamString: string, isSub: boolean, userId: string): Promise<Button[]> {
     const subUnsubPrefix = isSub ? "sub" : "unsub"
 
-    const splitString = teamName.trim().split(" ")
-let dbCommand;
-if (isSub)  dbCommand = dbClient.from("teams").select("name, id, games(name)");
-else dbCommand = dbClient.from("teams").select("name, id, games(name)").eq('subscriptions.users.discord_id', userId);
+const splitString = teamString.trim().split(" ")
+let teamNames = splitString.map((x, index) => `%${x}%`)
+//todo - maybe filter out any 'teamNames' under 2 or 3 characters
 
-    const orString = splitString.map((x, index) => `name.ilike.%${x}%`).join(",")
+let rpcParams = {
+    p_team_name: teamNames
+}
+if (!isSub) rpcParams["p_discord_id"] = userId;
 
-    const { data, error } = await dbCommand.or(orString).limit(5);
+const { data, error } = await dbClient.rpc('return_teams_for_user_by_team_name', rpcParams)
 
-    return data.map((x) => ({ id: `${subUnsubPrefix}_REPLACE_${x.id}`, label: `${x.name} (${x.games.name})`, style: isSub ? ButtonStyle.Primary : ButtonStyle.Danger }))
+
+    return data.map((result) => ({ id: `${subUnsubPrefix}_${userId}_${result.id}`, label: `${result.teamname} (${result.gamename})`, style: isSub ? ButtonStyle.Primary : ButtonStyle.Danger }))
 }

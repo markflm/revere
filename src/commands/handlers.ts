@@ -4,9 +4,6 @@ import { fuzzyLookupTeam, getTeamsForUser, getUserIdByDiscordId } from "../servi
 import generateButtonRow from "../utils/generateButtonRow";
 
 export async function handleSlashCommand(interaction: ChatInputCommandInteraction) {
-    // console.log("interaction from slash command handler")
-    // console.log(interaction)
-    // console.log(interaction.options)
     switch (interaction.commandName) {
         case (SlashCommandNames.getMyTeams): {
             const teams = await getTeamsForUser(interaction.user.id)
@@ -25,9 +22,9 @@ export async function handleSlashCommand(interaction: ChatInputCommandInteractio
                 throw new Error()
             }
             const team: string = interaction.options.data[0].value
-            const teamOptions = await fuzzyLookupTeam(team, true)
+            const teamOptions = await fuzzyLookupTeam(team, true, interaction.user.id)
             if (!teamOptions.length) {
-                interaction.reply({ content: `Revere could not find any team names similar to ${team}. Visit our website to view all available teams.`, ephemeral: true })
+                interaction.reply({ content: `Revere could not find any team names similar to "${team}". Visit our website to view all available teams.`, ephemeral: true })
                 return;
             }
             const userId = await getUserIdByDiscordId(interaction.user.id)
@@ -46,7 +43,6 @@ export async function handleSlashCommand(interaction: ChatInputCommandInteractio
                 return;
             }
             const userId = await getUserIdByDiscordId(interaction.user.id)
-            teamOptions.map((x) => x.label.replace("REPLACE", userId))
             interaction.reply({ content: `Revere found at least ${teamOptions.length} teams you're currently subscribed to when looking up "${team}". Click to unsubscribe`, components: [generateButtonRow(teamOptions)], ephemeral: true })
             break;
         }

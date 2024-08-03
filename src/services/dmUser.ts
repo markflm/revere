@@ -11,7 +11,7 @@ user.send(message).catch((err) => {
 })
 }
 
-export async function dmUserEmbed(client: Client, userAlert: UserAlert){
+export async function dmUserMatchAlert(client: Client, userAlert: UserAlert){
 const user = await client.users.fetch(userAlert.userId)
 // do we want to send multiple embeds at once?
 const match = userAlert.matches[0]
@@ -28,3 +28,4 @@ user.send({embeds: [msg], components: [generateButtonRow(buttons)]}).catch((err)
     console.error("Failed to send message to user", err)
 })
 }
+

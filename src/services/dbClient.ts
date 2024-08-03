@@ -45,19 +45,34 @@ export async function getTeamsForUser(userId): Promise<string[]> {
 export async function fuzzyLookupTeam(teamString: string, isSub: boolean, userId: string): Promise<Button[]> {
     const subUnsubPrefix = isSub ? "sub" : "unsub"
 
-const splitString = teamString.trim().split(" ")
-let teamNames = splitString.map((x, index) => `%${x}%`)
-//todo - maybe filter out any 'teamNames' under 2 or 3 characters
+    const splitString = teamString.trim().split(" ")
+    let teamNames = splitString.map((x, index) => `%${x}%`)
+    //todo - maybe filter out any 'teamNames' under 2 or 3 characters
 
-let rpcParams = {
-    p_team_name: teamNames,
-    is_sub_lookup: isSub,
-    p_discord_id: userId
-}
+    let rpcParams = {
+        p_team_name: teamNames,
+        is_sub_lookup: isSub,
+        p_discord_id: userId
+    }
 
 
-const { data, error } = await dbClient.rpc('return_teams_for_user_by_team_name', rpcParams)
+    const { data, error } = await dbClient.rpc('return_teams_for_user_by_team_name', rpcParams)
 
+    if (error) {
+        console.error(error.message)
+        throw new Error(error.message)
+    }
 
     return data.map((result) => ({ id: `${subUnsubPrefix}_${userId}_${result.id}`, label: `${result.teamname} (${result.gamename})`, style: isSub ? ButtonStyle.Primary : ButtonStyle.Danger }))
+}
+
+export async function getPopularTeams(userId: string): Promise<Button[]> {
+
+    const { data, error } = await dbClient.rpc('return_popular_teams', { p_discord_id: userId })
+    if (error) {
+        console.error(error.message)
+        throw new Error(error.message)
+    }
+    return data.map((result) => ({ id: `$sub_${userId}_${result.id}`, label: `${result.teamname} (${result.gamename})`, style: ButtonStyle.Primary }))
+
 }

@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import createDiscordClient from "./services/createClient";
 import Fastify from 'fastify'
-import { dmUserBasic, dmUserEmbed } from './services/dmUser';
+import { dmUserBasic, dmUserMatchAlert } from './services/dmUser';
 import { UserAlert } from './types/UserAlert';
 import { ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Events as DiscordEvents, TextChannel } from 'discord.js';
 import { Button } from './types/Button';
@@ -80,7 +80,7 @@ fastify.post('/alert', async (request, reply) => {
   const firstUser: UserAlert = request.body.data[0]
 
   // await dmUserBasic(client, firstUser.userId, `Match at ${firstUser.matches[0].link} provided by ${firstUser.matches[0].provider} starts in ${firstUser.matches[0].timeToStart}` )
-  await dmUserEmbed(client, firstUser)
+  await dmUserMatchAlert(client, firstUser)
   reply.code(200).send();
 })
 

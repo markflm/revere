@@ -1,7 +1,9 @@
-import { ChatInputCommandInteraction, blockQuote } from "discord.js";
+import { ChatInputCommandInteraction, EmbedData, blockQuote } from "discord.js";
 import { SlashCommandNames } from "./constants";
-import { fuzzyLookupTeam, getTeamsForUser, getUserIdByDiscordId } from "../services/dbClient";
+import { fuzzyLookupTeam, getPopularTeams, getTeamsForUser, getUserIdByDiscordId } from "../services/dbClient";
 import generateButtonRow from "../utils/generateButtonRow";
+import { ValorantDefaults } from "../constants";
+import { createEmbedMessage } from "../utils/generateEmbedMessage";
 
 export async function handleSlashCommand(interaction: ChatInputCommandInteraction) {
     switch (interaction.commandName) {
@@ -42,6 +44,25 @@ export async function handleSlashCommand(interaction: ChatInputCommandInteractio
             }
             interaction.reply({ content: `Revere found at least ${teamOptions.length} team(s) you're currently subscribed to when looking up "${team}". Click to unsubscribe`, components: [generateButtonRow(teamOptions)], ephemeral: true })
             break;
+        }
+        case (SlashCommandNames.getStarted): {
+            //todo - check if interaction.user.id is already a Revere user. adjust message/teams present if they already exist
+
+            const teamOptions = await getPopularTeams(interaction.user.id)
+            const embedData: EmbedData = {};
+            embedData.title = `Welcome to Revere!`
+            embedData.description = `With esports being played around the globe at all hours of the day, it can be hard to keep track of all of your favorite team's matches.
+            **Revere** is here to help. Revere will send you an alert when your favorite team is about to start a match.
+            You can interact with Revere through Discord commands, or you can use our website linked above.
+            Use the \`/revere-add-team\` command to subscribe to your favorite teams! 
+            To get you started, here are some of our most subscribed to teams from popular games.`
+            embedData.url = "http://www.revere.gg"
+            // embedData.thumbnail = ValorantDefaults.messageThumbnail
+            embedData.author ={ name: 'Revere', iconURL: 'https://www.vlr.gg/img/vlr/logo_header.png', url: 'http://www.revere.gg' },
+            //todo - replace the content here. a footer makes the message look better.
+            embedData.footer = { text: 'Upgrade to Revere Pro for a better experience', iconURL: 'https://i.imgur.com/AfFp7pu.png' };
+           
+            interaction.reply({embeds:[createEmbedMessage(embedData)], components: [generateButtonRow(teamOptions)]})
         }
     }
 }
